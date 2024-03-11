@@ -37,10 +37,10 @@ namespace llvm {
 
         // std::vector<BitVector> WorkList;
 
-        BitVector DataFlow::meet(std::vector<BitVector>& inputarray, bool union_flag);
+        // BitVector meet(std::vector<BitVector>& inputarray, bool union_flag);
 
     
-    }
+    };
 }
 
 #endif
