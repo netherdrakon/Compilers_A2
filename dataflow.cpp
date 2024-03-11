@@ -5,9 +5,9 @@
 
 namespace llvm {
 
-  BitVector DataFlow::meet(std::vector<BitVector>& inputarray){
+  BitVector DataFlow::meet(std::vector<BitVector>& inputarray, bool union_flag){
     BitVector result;
-    int inputsize = input.size();
+    int inputsize = inputarray.size();
     if(inputsize==0){
       return result;
     }
@@ -17,8 +17,8 @@ namespace llvm {
     result = inputarray[0];
 
     for(int i=1; i<inputsize; i++){
-      //Meet Flag: Union = 0, Intersection = 1
-      if(!meet_flag){
+      //Meet Flag: Union = 1, Intersection = 0
+      if(union_flag){
         result = result | inputarray[i];
       }
       else{

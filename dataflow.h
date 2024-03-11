@@ -30,16 +30,17 @@ namespace llvm {
 
 // Add definitions (and code, depending on your strategy) for your dataflow
 // abstraction here.
+    class DataFlow : public FunctionPass{
 
-    bool direction_flag = 0; //Forward = 0, Backward = 1
-    bool meet_flag = 0; //Union = 0, Intersection = 1
+        bool direction_flag = 0; //Forward = 0, Backward = 1
+        bool union_flag = 0; //Union = 0, Intersection = 1
 
-    std::vector<BitVector> WorkList;
+        // std::vector<BitVector> WorkList;
 
-    BitVector DataFlow::meet(std::vector<BitVector>& input);
+        BitVector DataFlow::meet(std::vector<BitVector>& inputarray, bool union_flag);
 
     
-
+    }
 }
 
 #endif
