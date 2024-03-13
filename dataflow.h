@@ -26,21 +26,44 @@
 #include <map>
 #include <string>
 
+#include "available-support.h"
+
+using namespace std;
+
 namespace llvm {
 
 // Add definitions (and code, depending on your strategy) for your dataflow
-// abstraction here.
+// abstraction here:
+
     class DataFlow : public FunctionPass{
+        
+        public:
 
-        bool direction_flag = 0; //Forward = 0, Backward = 1
-        bool union_flag = 0; //Union = 0, Intersection = 1
+            vector<Expression* > ExprList;
+            unordered_map<Expression* , int> ExprIndex;
 
-        // std::vector<BitVector> WorkList;
+            bool backward_flag = 0; //Forward = 0, Backward = 1
+            // bool union_flag = 0; //Union = 0, Intersection = 1
 
-        // BitVector meet(std::vector<BitVector>& inputarray, bool union_flag);
+            
+            BitVector meet(std::vector<BitVector>& inputarray, bool union_flag);
+
+            void InitializeExpr(Function &F);
+
+            virtual void CustomInit(Function &F);
 
     
     };
+
+    typedef struct BlockData{
+        BlockData(int size){
+            BitVector in[size];
+            BitVector out[size];
+        }
+    }BlockData;
+
+    
+
 }
 
 #endif

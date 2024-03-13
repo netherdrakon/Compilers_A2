@@ -9,12 +9,19 @@
 #include "llvm/Support/raw_ostream.h"
 
 #include "dataflow.h"
-#include "available-support.h"
+// #include "available-support.h"
 
 using namespace llvm;
 using namespace std;
 
 namespace {
+  class AvailableExprAnalysis : public DataFlow{
+
+  };
+
+
+
+
   class AvailableExpressions : public FunctionPass {
     
   public:
@@ -23,23 +30,14 @@ namespace {
     int instctr = 0;
     
     AvailableExpressions() : FunctionPass(ID) { }
+
+
     
     // virtual bool runOnFunction(Function& F) {
     bool runOnFunction(Function& F) {
       outs() << "Function: " << F.getName() << "\n";
 
 
-
-      for(BasicBlock& B : F){
-        bbctr++;
-        outs() << "Basic Block: " << bbctr << "\n";
-        for(Instruction& I : B){
-          instctr++;
-          outs() << "Basic Block: " << bbctr << "\n";
-        }
-        instctr=0;
-
-      }
     
 
       
