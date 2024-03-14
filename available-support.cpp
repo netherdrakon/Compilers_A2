@@ -71,6 +71,26 @@ namespace llvm {
     return getShortValueName(v1) + " " + op + " " + getShortValueName(v2);
   }
 
+    const int VAR_NAME_START_IDX = 2;
+
+    std::string valueToDefinitionVarStr(Value* v) {
+    //Similar to valueToDefinitionStr, but we return just the defined var rather than the whole definition
+
+    Value* def = getDefinitionVar(v);
+    if (def == 0)
+      return "";
+
+    if (isa<Argument>(def) || isa<StoreInst>(def)) {
+      return "%" + def->getName().str();
+    }
+    else {
+      std::string str = valueToStr(def);
+      int varNameEndIdx = str.find(' ',VAR_NAME_START_IDX);
+      str = str.substr(VAR_NAME_START_IDX,varNameEndIdx-VAR_NAME_START_IDX);
+      return str;
+    }
+  }
+
   // Silly code to print out a set of expressions in a nice
   // format
   void printSet(std::vector<Expression> * x) {
@@ -87,6 +107,72 @@ namespace llvm {
       outs() << (it->toString());
     }
     outs() << "}\n";
+  }
+
+      /* Var definition util */
+  Value* getDefinitionVar(Value* v) {
+    // Definitions are assumed to be one of:
+    // 1) Function arguments
+    // 2) Store instructions (2nd argument is the variable being (re)defined)
+    // 3) Instructions that start with "  %" (note the 2x spaces)
+    //      Note that this is a pretty brittle and hacky way to catch what seems the most common definition type in LLVM.
+    //      Unfortunately, we couldn't figure a better way to catch all definitions otherwise, as cases like
+    //      "%0" and "%1" don't show up  when using "getName()" to identify definition instructions.
+    //      There's got to be a better way, though...
+
+    if (isa<Argument>(v)) {
+      return v;
+    }
+    else if (isa<StoreInst>(v)) {
+      return ((StoreInst*)v)->getPointerOperand();
+    }
+    else if (isa<Instruction>(v)){
+      std::string str = valueToStr(v);
+      if (str.length() > VAR_NAME_START_IDX && str.substr(0,VAR_NAME_START_IDX+1) == "  %")
+        return v;
+    }
+    return 0;
+  }
+
+    std::string valueToDefinitionStr(Value* v) {
+    //Verify it's a definition first
+    Value* def = getDefinitionVar(v);
+    if (def == 0)
+      return "";
+
+    std::string str = valueToStr(v);
+    if (isa<Argument>(v)) {
+      return str;
+    }
+    else {
+        str = str.substr(VAR_NAME_START_IDX);
+        return str;
+    }
+
+    return "";
+  }
+
+    //format the set to a string.
+  std::string setToStr(std::vector<void*>& domain, BitVector& includedInSet) {
+    std::stringstream ss;
+    ss << "{";
+    int cnt = 0;
+
+    for (int i = 0; i < domain.size(); i++) {
+      if (includedInSet[i]) {
+        std::string&& defstr =valueToDefinitionStr((Value*)domain[i]);
+        if(defstr.length() == 0){
+          continue;
+        }
+
+        if (cnt > 0) ss << " | ";
+        ss << defstr;
+
+        cnt++;
+      }
+    }
+    ss << "}";
+    return ss.str();
   }
 
   // The following code may be useful for both of your passes:
@@ -139,4 +225,86 @@ namespace llvm {
       return "\"" + inst + "\"";
     }
   }
+
+        // Pretty printing utility functions
+    std::string formatBitVector(BitVector& b)
+    {
+        unsigned int i;
+        unsigned int b_size = b.size();
+
+        std::stringstream ss;
+        ss << "{";
+
+        if(b_size == 0)
+            ss << "-";
+        else
+        {
+            for(i = 0; i < b.size() ; i++)
+            {
+                if(b[i] == true)
+                    ss << "1";
+                else
+                    ss << "0";
+            }
+        }
+
+        ss << "}";
+        return ss.str();
+    }
+
+    std::string valueToStr(Value* v)
+    {
+        std::string res;
+        llvm::raw_string_ostream raw_st(res);
+        v->print(raw_st);
+        return res;
+    }
+
+    std::string formatSet(std::vector<void*>& domain, BitVector& on, int  mode) {
+        std::stringstream ss;
+        ss << "{";
+        int cnt = 0;
+
+        for (int i = 0; i < domain.size(); i++) {
+            // If element i is on
+            if (on[i]) {
+
+                std::string ret("");
+
+                switch(mode)
+                {
+                  case 0:
+                      // Value*
+                      ret = getShortValueName((Value*)domain[i]);
+                      break;
+
+                  case 1:
+                      // Expression*
+                      ret = ((Expression*)domain[i])->toString();
+                      break;
+
+                  default:
+                      errs() << "Invalid mode :: " << mode << "\n";
+                      break;
+                }
+
+                if(ret.length() == 0){
+                  continue;
+                }
+
+                if (cnt > 0)
+                  ss << " ,";
+
+                ss << ret;
+
+                cnt++;
+            }
+        }
+
+        ss << " }";
+
+        return ss.str();
+    }
+
 }
+

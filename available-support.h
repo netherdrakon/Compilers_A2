@@ -6,6 +6,7 @@
 
 #include <string>
 #include <vector>
+#include <sstream>
 
 #include "llvm/IR/Function.h"
 #include "llvm/IR/Instruction.h"
@@ -29,6 +30,24 @@ namespace llvm {
   };
 
   void printSet(std::vector<Expression> * x);
+
+      //Pretty printing utility functions
+    std::string formatBitVector(BitVector& b);
+    Value* getDefinitionVar(Value* v);
+
+    /** Returns string representation of a set of domain elements with inclusion indicated by a bit vector
+     Each element is output according to the given valFormatFunc function */
+    std::string setToStr(std::vector<void*>& domain, BitVector& includedInSet);
+
+    /** Returns string version of definition if the Value is in fact a definition, or an empty string otherwise.
+     * eg: The defining instruction "%a = add nsw i32 %b, 1" will return exactly that: "%a = add nsw i32 %b, 1"*/
+     std::string valueToDefinitionStr(Value* v);
+
+     std::string valueToDefinitionVarStr(Value* v);
+
+     std::string valueToStr(Value* v);
+
+    std::string formatSet(std::vector<void*>& domain, BitVector& on, int mode);
 }
 
 #endif
