@@ -34,6 +34,7 @@ namespace llvm
 
     }
 
+    //Initializes an index map from Expressions/Variables etc (depending on analysis) to index.
     unordered_map<void*, int> DataFlow::InitializeExprMap(std::vector<void*> &domain){
 
         unordered_map<void*, int> res;
@@ -47,6 +48,7 @@ namespace llvm
 
     }
 
+    //Initializes the boundary depending on forward or back propagation
     vector<BasicBlock*> DataFlow::InitializeBoundary(Function &F){
         vector<BasicBlock*> boundary;
         if (direction == Direction::FORWARD){
@@ -90,6 +92,7 @@ namespace llvm
     //     return value;
     // }
 
+    //Traverses the Function to get the Basic Blocks in required order to perform the meet operation
     vector<BasicBlock*> DataFlow::Traverse(Function &F){
         vector<BasicBlock*> result;// Initialising a vector to store the order of traversal
         if(direction == Direction::FORWARD)
@@ -111,6 +114,7 @@ namespace llvm
         return result;
     }
 
+    //Helper function to simplify assigning values based on direction
     BitVector DataFlow::AssignValue(BlockResult &block_result, bool flag){
         BitVector value;
         if (direction == Direction::FORWARD) 
@@ -137,6 +141,7 @@ namespace llvm
 
     }
 
+    //Another helper function for pointers
     BitVector* DataFlow::AssignValuePtr(BlockResult &block_result, bool flag){
         BitVector* value;
         if (direction == Direction::FORWARD) 
@@ -163,7 +168,7 @@ namespace llvm
 
     }
 
-
+    //Actual driver code
     DataFlowResult DataFlow::run(Function &F, std::vector<void*> domain,BitVector boundary_condition, BitVector initial_interior_point) 
     {
         std::unordered_map<BasicBlock*, BlockResult> output;// Initialising the output to store the result of the analysis

@@ -1,0 +1,25 @@
+FUNCTION :: main
+[BB Name]entry
+IN[entry]: { }
+OUT[entry]: {%argc + 50 ,%add + 96 }
+Gen[entry]: {%argc + 50 ,%add + 96 }
+Kill[entry]: {%add + 96 ,%add - 50 ,96 * %add ,%add + 50 }
+
+[BB Name]if.then
+IN[if.then]: {%argc + 50 ,%add + 96 }
+OUT[if.then]: {%argc + 50 ,%add + 96 ,%add - 50 ,96 * %add }
+Gen[if.then]: {%add - 50 ,96 * %add }
+Kill[if.then]: { }
+
+[BB Name]if.else
+IN[if.else]: {%argc + 50 ,%add + 96 }
+OUT[if.else]: {%argc + 50 ,%add + 96 ,96 * %add ,%add + 50 }
+Gen[if.else]: {96 * %add ,%add + 50 }
+Kill[if.else]: { }
+
+[BB Name]if.end
+IN[if.end]: {%argc + 50 ,%add + 96 ,96 * %add }
+OUT[if.end]: {%argc + 50 ,%add + 96 ,96 * %add ,50 - 96 ,%sub4 + %f.0 }
+Gen[if.end]: {50 - 96 ,%sub4 + %f.0 }
+Kill[if.end]: {%sub4 + %f.0 }
+
